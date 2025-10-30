@@ -87,7 +87,7 @@ selection = st.sidebar.radio("", nav_items)
 if st.sidebar.button("Log out", use_container_width=True):
     st.session_state["authenticated"] = False
     st.session_state["role"] = None
-    st.experimental_rerun()
+    st.rerun()
 
 st.title(role_header(role))
 

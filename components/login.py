@@ -56,7 +56,7 @@ def render_login(logo_path: Optional[str] = None) -> Tuple[bool, Optional[str]]:
         st.session_state["authenticated"] = True
         st.session_state["role"] = role
         st.toast(f"Welcome {username} – {role}", icon="✅")
-        st.experimental_rerun()
+        st.rerun()
 
     authenticated = st.session_state.get("authenticated", False)
     active_role = st.session_state.get("role") if authenticated else None
