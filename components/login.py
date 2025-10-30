@@ -14,6 +14,21 @@ def load_logo(path: Optional[Path]) -> bytes | None:
 
 
 def render_login(logo_path: Optional[str] = None) -> Tuple[bool, Optional[str]]:
+    authenticated = st.session_state.get("authenticated", False)
+    active_role = st.session_state.get("role") if authenticated else None
+
+    if authenticated and active_role:
+        st.markdown(
+            """
+            <div style="text-align:center;margin-top:1.5rem;margin-bottom:2rem;">
+                <h2 style="color:#E0E0E0;">Access granted</h2>
+                <p style="color:#BBBBBB;">Use the sidebar to navigate the analytics modules.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        return authenticated, active_role
+
     st.markdown("""
         <div style="text-align:center;margin-top:3rem;">
             <h1 style="color:#E0E0E0;">Port Emission Intelligence – ESG M&amp;T</h1>
@@ -41,6 +56,7 @@ def render_login(logo_path: Optional[str] = None) -> Tuple[bool, Optional[str]]:
         st.session_state["authenticated"] = True
         st.session_state["role"] = role
         st.toast(f"Welcome {username} – {role}", icon="✅")
+        st.experimental_rerun()
 
     authenticated = st.session_state.get("authenticated", False)
     active_role = st.session_state.get("role") if authenticated else None
