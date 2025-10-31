@@ -2,7 +2,11 @@ import plotly.graph_objects as go
 import streamlit as st
 import pandas as pd
 
-from data_simulation import DEFAULT_ALERT_THRESHOLD, compliance_summary
+from data_simulation import (
+    DEFAULT_ALERT_THRESHOLD,
+    compliance_summary,
+    hex_to_rgba,
+)
 
 
 def render_compliance_alerts(df: pd.DataFrame) -> None:
@@ -19,9 +23,9 @@ def render_compliance_alerts(df: pd.DataFrame) -> None:
                 "axis": {"range": [0, 100]},
                 "bar": {"color": "#E03C31"},
                 "steps": [
-                    {"range": [0, 70], "color": "rgba(224, 60, 49, 0.25)"},
-                    {"range": [70, 90], "color": "rgba(243, 156, 18, 0.25)"},
-                    {"range": [90, 100], "color": "rgba(39, 174, 96, 0.25)"},
+                    {"range": [0, 70], "color": hex_to_rgba("#E03C31", 0.25)},
+                    {"range": [70, 90], "color": hex_to_rgba("#F39C12", 0.25)},
+                    {"range": [90, 100], "color": hex_to_rgba("#27AE60", 0.25)},
                 ],
                 "threshold": {"line": {"color": "#27AE60", "width": 4}, "value": 95},
             },

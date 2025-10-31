@@ -11,6 +11,7 @@ from faker import Faker
 faker = Faker()
 
 ZONES = ["ECA", "Non-ECA"]
+ZONE_COLORS = {"ECA": "#E03C31", "Non-ECA": "#2980B9"}
 FUEL_TYPES = ["HFO", "MGO", "LNG", "Hybrid"]
 VESSEL_TYPES = ["Bulk Carrier", "Container", "Tanker", "Ro-Ro", "Offshore"]
 DEFAULT_ALERT_THRESHOLD = 15.0
@@ -172,10 +173,10 @@ def build_emission_summary(df: pd.DataFrame) -> Dict[str, object]:
     }
 
 
-def generate_sankey_data(df: pd.DataFrame) -> Dict[str, List[int]]:
+def generate_sankey_data(df: pd.DataFrame) -> Dict[str, List]:
     zone_totals = df.groupby(["Fuel_Type", "Zone"])["CO2_tons"].sum().reset_index()
     if zone_totals.empty:
-        return {"nodes": [], "sources": [], "targets": [], "values": []}
+        return {"nodes": [], "sources": [], "targets": [], "values": [], "link_colors": []}
 
     fuel_nodes = zone_totals["Fuel_Type"].unique().tolist()
     zone_nodes = ["ECA Emissions", "Non-ECA Emissions"]
@@ -185,8 +186,15 @@ def generate_sankey_data(df: pd.DataFrame) -> Dict[str, List[int]]:
     sources = [node_index[row["Fuel_Type"]] for _, row in zone_totals.iterrows()]
     targets = [node_index[f"{row['Zone']} Emissions"] for _, row in zone_totals.iterrows()]
     values = [float(round(row["CO2_tons"], 2)) for _, row in zone_totals.iterrows()]
+    link_colors = [hex_to_rgba(ZONE_COLORS.get(row["Zone"], "#4A4A4A"), 0.45) for _, row in zone_totals.iterrows()]
 
-    return {"nodes": nodes, "sources": sources, "targets": targets, "values": values}
+    return {
+        "nodes": nodes,
+        "sources": sources,
+        "targets": targets,
+        "values": values,
+        "link_colors": link_colors,
+    }
 
 
 def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
@@ -239,6 +247,15 @@ def _percentage_shift(current: pd.DataFrame, previous: pd.DataFrame, zone: str) 
     if prev == 0:
         return 0.0
     return (curr - prev) / prev * 100
+
+
+def hex_to_rgba(hex_color: str, alpha: float) -> str:
+    color = hex_color.lstrip("#")
+    if len(color) != 6:
+        color = "4A4A4A"
+    r, g, b = (int(color[i : i + 2], 16) for i in (0, 2, 4))
+    alpha = max(0.0, min(1.0, alpha))
+    return f"rgba({r}, {g}, {b}, {alpha})"
 
 
 def zone_snapshot(df: pd.DataFrame) -> List[Dict[str, object]]:
