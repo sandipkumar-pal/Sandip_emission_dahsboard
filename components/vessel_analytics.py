@@ -50,12 +50,19 @@ def render_vessel_table(df: pd.DataFrame) -> None:
             use_container_width=True,
         )
     with col2:
+        excel_bytes = downloads.get("excel")
         st.download_button(
             "Export Excel",
-            data=downloads["excel"],
+            data=excel_bytes or b"",
             file_name="port_emission_extract.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             use_container_width=True,
+            disabled=excel_bytes is None,
+            help=(
+                "Install the optional 'openpyxl' dependency to enable Excel exports."
+                if excel_bytes is None
+                else None
+            ),
         )
 
     st.markdown(

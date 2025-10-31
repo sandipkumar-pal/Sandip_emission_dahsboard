@@ -295,14 +295,20 @@ def compliance_summary(df: pd.DataFrame) -> Dict[str, object]:
     }
 
 
-def export_payload(df: pd.DataFrame) -> Dict[str, bytes]:
+def export_payload(df: pd.DataFrame) -> Dict[str, bytes | None]:
     csv_bytes = df.to_csv(index=False).encode("utf-8")
+
     from io import BytesIO
 
+    excel_bytes: bytes | None = None
     excel_buffer = BytesIO()
-    with pd.ExcelWriter(excel_buffer, engine="openpyxl") as writer:
-        df.to_excel(writer, index=False, sheet_name="emissions")
-    excel_bytes = excel_buffer.getvalue()
+    try:
+        with pd.ExcelWriter(excel_buffer, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False, sheet_name="emissions")
+        excel_bytes = excel_buffer.getvalue()
+    except ImportError:
+        excel_bytes = None
+
     return {"csv": csv_bytes, "excel": excel_bytes}
 
 
