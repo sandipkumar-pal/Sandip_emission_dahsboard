@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "port-emission-dashboard"
+version = "0.2.0"
+description = "Enterprise-grade Port Emission Intelligence Dashboard (ECA/Non-ECA)"
+authors = ["S&P Global Maritime Analytics"]
+license = "Proprietary"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+streamlit = "^1.38"
+plotly = "^5.24"
+folium = "^0.17"
+pandas = "^2.2"
+numpy = "^1.26"
+faker = "^28.0"
+matplotlib = "^3.9"
+streamlit-extras = "^0.4.0"
+openpyxl = "^3.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.3"
+flake8 = "^7.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
