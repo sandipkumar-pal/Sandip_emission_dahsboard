@@ -1,0 +1,682 @@
+# This lockfile was authored offline due to environment network restrictions.
+# Run `poetry lock` in a network-enabled environment to refresh metadata if required.
+
+[[package]]
+name = "altair"
+version = "5.3.0"
+description = "Declarative statistical visualization library for Python"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+jsonschema = ">=3.0"
+numpy = ">=1.20"
+pandas = ">=1.3"
+toolz = ">=0.8.2"
+
+[[package]]
+name = "attrs"
+version = "24.1.0"
+description = "Classes Without Boilerplate"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "black"
+version = "24.8.0"
+description = "The uncompromising code formatter."
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+click = ">=8.0.0"
+mypy-extensions = "^1.0.0"
+packaging = ">=22.0"
+pathspec = ">=0.9.0"
+platformdirs = ">=2"
+regex = ">=2023.12.25"
+tomli = "^2.0.1"
+
+[[package]]
+name = "blinker"
+version = "1.8.2"
+description = "Fast, simple object-to-object and broadcast signaling"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "branca"
+version = "0.7.2"
+description = "Generate complex HTML+JS pages with Python"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+jinja2 = ">=2.9"
+
+[[package]]
+name = "cachetools"
+version = "5.3.3"
+description = "Extensible memoizing collections and decorators"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "certifi"
+version = "2024.7.4"
+description = "Python package for providing Mozilla's CA Bundle."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
+name = "charset-normalizer"
+version = "3.3.2"
+description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "click"
+version = "8.1.7"
+description = "Composable command line interface toolkit"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "contourpy"
+version = "1.2.1"
+description = "Python library for contour plotting"
+category = "main"
+optional = false
+python-versions = ">=3.9"
+
+[[package]]
+name = "cycler"
+version = "0.12.1"
+description = "Composable style cycles"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "decorator"
+version = "5.1.1"
+description = "Decorators for Humans"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
+name = "et-xmlfile"
+version = "1.1.0"
+description = "An implementation of lxml.xmlfile for the standard library"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "faker"
+version = "28.4.1"
+description = "Faker is a Python package that generates fake data for you."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+python-dateutil = ">=2.4"
+
+[[package]]
+name = "flake8"
+version = "7.1.1"
+description = "the modular source code checker: pep8 pyflakes and co"
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+mccabe = "^0.7.0"
+pycodestyle = "^2.12.0"
+pyflakes = "^3.2.0"
+
+[[package]]
+name = "folium"
+version = "0.17.0"
+description = "Make beautiful maps with Leaflet"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+branca = ">=0.6.0"
+jinja2 = ">=2.9"
+numpy = ">=1.20"
+requests = ">=2.0"
+
+[[package]]
+name = "fonttools"
+version = "4.53.1"
+description = "Tools to manipulate font files"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "gitdb"
+version = "4.0.11"
+description = "Git Object Database"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+smmap = ">=3.0.1,<6"
+
+[[package]]
+name = "gitpython"
+version = "3.1.43"
+description = "Python Git Library"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+gitdb = ">=4.0.1,<5"
+
+[[package]]
+name = "idna"
+version = "3.7"
+description = "Internationalized Domain Names in Applications (IDNA)"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
+name = "jinja2"
+version = "3.1.4"
+description = "A very fast and expressive template engine."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+markupsafe = ">=2.0"
+
+[[package]]
+name = "jsonschema"
+version = "4.21.1"
+description = "An implementation of JSON Schema validation for Python"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+attrs = ">=22.2.0"
+jsonschema-specifications = ">=2023.03.6"
+referencing = ">=0.28.4"
+typing-extensions = ">=4.0.0"
+
+[[package]]
+name = "jsonschema-specifications"
+version = "2023.12.1"
+description = "The JSON Schema meta-schemas and vocabularies"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+referencing = ">=0.28.4"
+
+[[package]]
+name = "kiwisolver"
+version = "1.4.5"
+description = "A fast implementation of the Cassowary constraint solver"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "markdown-it-py"
+version = "3.0.0"
+description = "Python port of markdown-it"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+mdurl = "~=0.1"
+
+[[package]]
+name = "markupsafe"
+version = "2.1.5"
+description = "Safely add untrusted strings to HTML/XML markup."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "matplotlib"
+version = "3.9.2"
+description = "Python plotting package"
+category = "main"
+optional = false
+python-versions = ">=3.9"
+
+[package.dependencies]
+contourpy = ">=1.2.0"
+cycler = ">=0.10"
+fonttools = ">=4.22.0"
+kiwisolver = ">=1.3.1"
+numpy = ">=1.21"
+packaging = ">=20.0"
+pillow = ">=8.0"
+pyparsing = ">=2.3.1"
+python-dateutil = ">=2.7"
+
+[[package]]
+name = "mccabe"
+version = "0.7.0"
+description = "McCabe complexity checker"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
+name = "mdurl"
+version = "0.1.2"
+description = "Markdown URL utilities"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "mypy-extensions"
+version = "1.0.0"
+description = "Experimental type system extensions for programs checked with the mypy typechecker."
+category = "dev"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
+name = "numpy"
+version = "1.26.4"
+description = "NumPy is the fundamental package for array computing with Python."
+category = "main"
+optional = false
+python-versions = ">=3.9"
+
+[[package]]
+name = "openpyxl"
+version = "3.1.5"
+description = "A Python library to read/write Excel 2010 xlsx/xlsm files"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+et-xmlfile = ">=1.0.1"
+
+[[package]]
+name = "packaging"
+version = "24.1"
+description = "Core utilities for Python packages"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "pandas"
+version = "2.2.2"
+description = "Powerful data structures for data analysis, time series, and statistics"
+category = "main"
+optional = false
+python-versions = ">=3.9"
+
+[package.dependencies]
+numpy = ">=1.22"
+python-dateutil = ">=2.8.2"
+pytz = ">=2020.1"
+tzdata = ">=2022.7"
+
+[[package]]
+name = "pathspec"
+version = "0.12.1"
+description = "Utility library for gitignore style pattern matching of file paths."
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "pillow"
+version = "10.4.0"
+description = "Python Imaging Library (Fork)"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "platformdirs"
+version = "4.2.2"
+description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "plotly"
+version = "5.24.1"
+description = "An open-source, interactive data visualization library for Python"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+packaging = ">=20"
+requests = ">=2.26"
+tenacity = ">=6.2.0"
+
+[[package]]
+name = "protobuf"
+version = "5.28.0"
+description = "Protocol Buffers"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "pyarrow"
+version = "17.0.0"
+description = "Python library for Apache Arrow"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "pycodestyle"
+version = "2.12.1"
+description = "Python style guide checker"
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "pydeck"
+version = "0.9.1"
+description = "Widget for deck.gl maps"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+jinja2 = ">=2.10.1"
+numpy = ">=1.16.4"
+pandas = ">=0.24.2"
+traitlets = ">=5.2.2"
+
+[[package]]
+name = "pyflakes"
+version = "3.2.0"
+description = "passive checker of Python programs"
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "pygments"
+version = "2.18.0"
+description = "Pygments is a syntax highlighting package written in Python."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "pympler"
+version = "1.0.1"
+description = "Development tool to measure memory usage of Python objects"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "pyparsing"
+version = "3.1.2"
+description = "pyparsing module"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "python-dateutil"
+version = "2.9.0.post0"
+description = "Extensions to the standard Python datetime module"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+six = ">=1.5"
+
+[[package]]
+name = "pytz"
+version = "2024.1"
+description = "World timezone definitions, modern and historical"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "regex"
+version = "2024.7.24"
+description = "Alternative regular expression module, to replace re."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "referencing"
+version = "0.35.1"
+description = "JSON Referencing + Python"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+attrs = ">=22.2.0"
+jsonschema-specifications = ">=2023.03.6"
+rpds-py = ">=0.7.0"
+
+[[package]]
+name = "requests"
+version = "2.32.3"
+description = "Python HTTP for Humans."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+certifi = ">=2017.4.17"
+charset-normalizer = ">=2,<4"
+idna = ">=2.5,<4"
+urllib3 = ">=1.21.1,<3"
+
+[[package]]
+name = "rich"
+version = "13.7.1"
+description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+markdown-it-py = "~=3.0"
+pygments = "<3.0.0,>=2.13.0"
+typing-extensions = ">=4.0.0"
+
+[[package]]
+name = "rpds-py"
+version = "0.18.1"
+description = "Python bindings to Rust's persistent data structures (rpds)"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "six"
+version = "1.16.0"
+description = "Python 2 and 3 compatibility utilities"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[[package]]
+name = "smmap"
+version = "5.0.1"
+description = "A pure Python implementation of a sliding window memory map manager"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "streamlit"
+version = "1.38.0"
+description = "Streamlit - The fastest way to build data apps in Python"
+category = "main"
+optional = false
+python-versions = ">=3.8,<3.13"
+
+[package.dependencies]
+altair = ">=4.0,<6.0"
+blinker = "<2.0"
+cachetools = ">=4.0,<6"
+click = ">=7.0,<9"
+gitpython = "<4,>=3.0.7"
+numpy = "<2,>=1.16"
+packaging = "<25,>=16.8"
+pandas = "<3,>=0.25"
+pyarrow = "<18,>=7.0"
+pillow = "<11,>=7.1.0"
+protobuf = "<6,>=3.12"
+pydeck = "<1.0,>=0.8"
+requests = "<3,>=2.27"
+rich = "<14,>=10.14.0"
+    pympler = ">=0.9"
+tenacity = "<9,>=8.1.0"
+toml = "<2,>=0.10.1"
+typing-extensions = "<5,>=3.10.0.0"
+tzlocal = "<6,>=1.1"
+validators = "<1.0,>=0.18"
+watchdog = ">=2.1.5"
+
+[[package]]
+name = "tenacity"
+version = "8.5.0"
+description = "Retry code until it succeeds"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "toml"
+version = "0.10.2"
+description = "Python Library for Tom's Obvious, Minimal Language"
+category = "main"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[[package]]
+name = "tomli"
+version = "2.0.1"
+description = "A lil' TOML parser"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "toolz"
+version = "0.12.1"
+description = "List processing tools and functional utilities"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "traitlets"
+version = "5.14.3"
+description = "Traitlets Python configuration system"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+decorator = ">=5.0.7"
+
+[[package]]
+name = "typing-extensions"
+version = "4.12.2"
+description = "Backported and Experimental Type Hints for Python"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "tzdata"
+version = "2024.1"
+description = "Provider of IANA time zone data"
+category = "main"
+optional = false
+python-versions = ">=2.7"
+
+[[package]]
+name = "tzlocal"
+version = "5.2"
+description = "tzinfo object for the local timezone"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+pytz = "*"
+
+[[package]]
+name = "urllib3"
+version = "2.2.2"
+description = "HTTP library with thread-safe connection pooling, file post, and more."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
+name = "watchdog"
+version = "4.0.1"
+description = "Filesystem events monitoring"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+platformdirs = ">=2.0"
+
+[[package]]
+name = "validators"
+version = "0.22.0"
+description = "Python Data Validation for Humans"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+decorator = ">=5.0.7"
+six = ">=1.10"
+
+[metadata]
+lock-version = "2.0"
+python-versions = ">=3.10,<3.13"
+content-hash = "074c655b007d51b8b9e82157002994eba9c16277f6b0129c49207a1d244b5d49"
