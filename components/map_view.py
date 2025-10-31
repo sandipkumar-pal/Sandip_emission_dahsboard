@@ -28,7 +28,7 @@ def render_map(df: pd.DataFrame, port_center: Tuple[float, float] = (1.264, 103.
             folium.GeoJson(
                 geojson,
                 style_function=lambda feature: {
-                    "fillColor": "#E03C3133",
+                    "fillColor": "#E03C31",
                     "color": "#E03C31",
                     "weight": 2,
                     "fillOpacity": 0.18,

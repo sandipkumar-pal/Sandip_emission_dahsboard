@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import streamlit as st
 
-from data_simulation import generate_sankey_data
+from data_simulation import generate_sankey_data, hex_to_rgba
 
 COLOR_MAP = {"ECA": "#E03C31", "Non-ECA": "#2980B9"}
 
@@ -104,6 +104,14 @@ def render_zone_analytics(df: pd.DataFrame) -> None:
     sankey_data = generate_sankey_data(df)
     with st.expander("Fuel → Zone → Emission Flow"):
         if sankey_data["values"]:
+            link_colors = sankey_data.get("link_colors")
+            if not link_colors:
+                node_labels = sankey_data.get("nodes", [])
+                link_colors = []
+                for target in sankey_data["targets"]:
+                    label = node_labels[target] if target < len(node_labels) else ""
+                    zone = "ECA" if "ECA" in label else "Non-ECA"
+                    link_colors.append(hex_to_rgba(COLOR_MAP.get(zone, "#4A4A4A"), 0.45))
             sankey_fig = go.Figure(
                 data=[
                     go.Sankey(
@@ -118,7 +126,7 @@ def render_zone_analytics(df: pd.DataFrame) -> None:
                             source=sankey_data["sources"],
                             target=sankey_data["targets"],
                             value=sankey_data["values"],
-                            color=["rgba(224,60,49,0.4)" if s == sankey_data["sources"][0] else "rgba(41,128,185,0.4)" for s in sankey_data["sources"]],
+                            color=link_colors,
                         ),
                     )
                 ]
