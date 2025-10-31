@@ -11,7 +11,7 @@ Enterprise-grade Streamlit dashboard delivering ECA vs Non-ECA emission analytic
 
 ## Tech Stack
 - **Frontend:** Streamlit with custom CSS, Plotly visualizations, and Folium maps.
-- **Data Simulation:** Pandas, NumPy, Faker generating 30-day maritime telemetry (~500 voyages).
+- **Data Sources:** Automatically merges local `bulkcarrier.parquet` and `ropax.parquet` files when available, otherwise falls back to a synthetic feed generated with Pandas, NumPy, and Faker.
 - **Environment:** Poetry for reproducible dependency management.
 
 ## Getting Started
@@ -29,7 +29,16 @@ Enterprise-grade Streamlit dashboard delivering ECA vs Non-ECA emission analytic
 
 > If you adjust dependencies, regenerate the lockfile with `poetry lock` from a network-enabled environment.
 
-> **Note:** All telemetry is simulated for demonstration purposes. The repository intentionally excludes image assets—branding can be applied via CSS or by referencing locally hosted logos outside of version control.
+### Local emission data ingestion
+
+Place the source parquet files provided by the analytics team inside your downloads directory:
+
+- `C:\Users\sandipkumar.pal\Downloads\bulkcarrier.parquet`
+- `C:\Users\sandipkumar.pal\Downloads\ropax.parquet`
+
+On the first launch the app will append both datasets, save a cached `port_emission_merged.parquet`, and reuse that merged snapshot on subsequent runs. To store the files elsewhere, set the `PORT_EMISSION_DATA_DIR` environment variable to the directory containing the parquet files before starting Streamlit. If no parquet data is found the dashboard transparently reverts to the built-in simulated telemetry.
+
+> **Note:** The repository intentionally excludes image assets—branding can be applied via CSS or by referencing locally hosted logos outside of version control.
 
 ## Project Structure
 ```

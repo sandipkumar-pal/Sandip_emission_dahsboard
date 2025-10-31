@@ -20,8 +20,8 @@ from data_simulation import (
     apply_filters,
     build_emission_summary,
     calculate_kpis,
-    generate_vessel_dataframe,
     get_default_filters,
+    load_emission_dataset,
     quick_insight,
 )
 
@@ -34,8 +34,8 @@ st.set_page_config(
 
 
 @st.cache_data(ttl=900)
-def load_simulated_data() -> pd.DataFrame:
-    return generate_vessel_dataframe()
+def load_dataset() -> pd.DataFrame:
+    return load_emission_dataset()
 
 
 def load_css(path: str = "assets/custom.css") -> None:
@@ -53,7 +53,7 @@ if not authenticated or not role:
 
 @st.cache_data(ttl=600)
 def get_data_snapshot() -> pd.DataFrame:
-    return load_simulated_data()
+    return load_dataset()
 
 
 def init_filter_state(df: pd.DataFrame) -> None:

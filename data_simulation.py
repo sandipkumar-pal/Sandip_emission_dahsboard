@@ -2,11 +2,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, Iterable, List
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional
 
 import numpy as np
 import pandas as pd
 from faker import Faker
+
+import logging
+import os
 
 faker = Faker()
 
@@ -15,6 +19,171 @@ ZONE_COLORS = {"ECA": "#E03C31", "Non-ECA": "#2980B9"}
 FUEL_TYPES = ["HFO", "MGO", "LNG", "Hybrid"]
 VESSEL_TYPES = ["Bulk Carrier", "Container", "Tanker", "Ro-Ro", "Offshore"]
 DEFAULT_ALERT_THRESHOLD = 15.0
+
+LOCAL_ENV_VAR = "PORT_EMISSION_DATA_DIR"
+WINDOWS_DOWNLOADS = Path("C:/Users/sandipkumar.pal/Downloads")
+MERGED_FILENAME = "port_emission_merged.parquet"
+
+logger = logging.getLogger(__name__)
+
+
+def _candidate_data_directories() -> List[Path]:
+    """Return ordered directories to search for emission parquet files."""
+
+    candidates: List[Path] = []
+    env_path = os.getenv(LOCAL_ENV_VAR)
+    if env_path:
+        candidates.append(Path(env_path))
+
+    candidates.extend(
+        [
+            WINDOWS_DOWNLOADS,
+            Path.home() / "Downloads",
+            Path.cwd() / "data",
+        ]
+    )
+
+    seen = set()
+    unique_candidates = []
+    for candidate in candidates:
+        resolved = candidate.expanduser()
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        unique_candidates.append(resolved)
+    return unique_candidates
+
+
+def _discover_parquet_sources() -> Optional[Dict[str, Path]]:
+    """Locate merged or raw parquet files from the local filesystem."""
+
+    for base_dir in _candidate_data_directories():
+        merged = base_dir / MERGED_FILENAME
+        bulk = base_dir / "bulkcarrier.parquet"
+        ropax = base_dir / "ropax.parquet"
+
+        if merged.exists():
+            return {"merged": merged, "base_dir": base_dir}
+        if bulk.exists() and ropax.exists():
+            return {"bulk": bulk, "ropax": ropax, "merged": merged, "base_dir": base_dir}
+    return None
+
+
+def _prepare_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    frame = df.copy()
+
+    expected_columns = [
+        "IMO_Number",
+        "Vessel_Name",
+        "Zone",
+        "Fuel_Type",
+        "Vessel_Type",
+        "CO2_tons",
+        "SOx_tons",
+        "NOx_tons",
+        "Speed_knots",
+        "Dwell_Time_hr",
+        "Compliance_Flag",
+        "Date",
+        "Lat",
+        "Lon",
+    ]
+
+    for column in expected_columns:
+        if column not in frame.columns:
+            if column == "Compliance_Flag":
+                frame[column] = True
+            elif column in {"Lat", "Lon"}:
+                frame[column] = np.nan
+            elif column == "Vessel_Name":
+                if "IMO_Number" in frame.columns:
+                    imo_values = pd.to_numeric(frame["IMO_Number"], errors="coerce").fillna(0).astype(int)
+                else:
+                    imo_values = pd.Series(range(9000000, 9000000 + len(frame)), dtype=int)
+                frame[column] = [f"MV_{val:07d}" for val in imo_values]
+            elif column == "Vessel_Type":
+                frame[column] = np.random.choice(VESSEL_TYPES, size=len(frame)) if len(frame) else []
+            elif column == "Zone":
+                frame[column] = "ECA"
+            elif column == "Fuel_Type":
+                frame[column] = np.random.choice(FUEL_TYPES, size=len(frame)) if len(frame) else []
+            elif column == "Date":
+                frame[column] = pd.Timestamp.utcnow()
+            elif column == "IMO_Number":
+                frame[column] = pd.RangeIndex(start=9100000, stop=9100000 + len(frame))
+            else:
+                frame[column] = 0
+
+    frame["IMO_Number"] = pd.to_numeric(frame["IMO_Number"], errors="coerce")
+    frame.dropna(subset=["IMO_Number"], inplace=True)
+    frame["IMO_Number"] = frame["IMO_Number"].astype("int64")
+    frame["Vessel_Name"] = frame["Vessel_Name"].astype(str)
+    frame["Zone"] = frame["Zone"].where(frame["Zone"].isin(ZONES), "Non-ECA")
+    frame["Fuel_Type"] = frame["Fuel_Type"].astype(str)
+    frame["Vessel_Type"] = frame["Vessel_Type"].astype(str)
+    numeric_cols = ["CO2_tons", "SOx_tons", "NOx_tons", "Speed_knots", "Dwell_Time_hr"]
+    for col in numeric_cols:
+        frame[col] = pd.to_numeric(frame[col], errors="coerce")
+
+    frame["Compliance_Flag"] = frame["Compliance_Flag"].astype(bool)
+    frame["Date"] = pd.to_datetime(frame["Date"], utc=True, errors="coerce")
+    frame.dropna(subset=["Date"], inplace=True)
+
+    if "Lat" in frame.columns:
+        frame["Lat"] = pd.to_numeric(frame["Lat"], errors="coerce")
+    if "Lon" in frame.columns:
+        frame["Lon"] = pd.to_numeric(frame["Lon"], errors="coerce")
+
+    frame["Emission_Intensity"] = (
+        frame["CO2_tons"] / frame["Dwell_Time_hr"].replace(0, np.nan)
+    ).round(3)
+    frame["Month"] = frame["Date"].dt.to_period("M").dt.to_timestamp()
+    frame.sort_values("Date", inplace=True)
+    frame.reset_index(drop=True, inplace=True)
+    return frame
+
+
+def _load_from_parquet_sources() -> Optional[pd.DataFrame]:
+    sources = _discover_parquet_sources()
+    if not sources:
+        return None
+
+    try:
+        if "merged" in sources and sources["merged"].exists():
+            logger.info("Loading merged emission parquet from %s", sources["merged"])
+            df = pd.read_parquet(sources["merged"])
+            return _prepare_dataframe(df)
+
+        bulk_path = sources.get("bulk")
+        ropax_path = sources.get("ropax")
+        if not bulk_path or not ropax_path:
+            return None
+
+        logger.info("Combining emission parquet files from %s", sources["base_dir"])
+        bulk_df = pd.read_parquet(bulk_path)
+        ropax_df = pd.read_parquet(ropax_path)
+        combined = pd.concat([bulk_df, ropax_df], ignore_index=True)
+
+        merged_path = sources["merged"]
+        try:
+            merged_path.parent.mkdir(parents=True, exist_ok=True)
+            combined.to_parquet(merged_path, index=False)
+        except Exception as exc:  # pragma: no cover - filesystem specific
+            logger.warning("Unable to persist merged parquet file: %s", exc)
+
+        return _prepare_dataframe(combined)
+    except Exception as exc:  # pragma: no cover - external dependency errors
+        logger.warning("Falling back to simulated data due to parquet load failure: %s", exc)
+        return None
+
+
+def load_emission_dataset(rows: int = 500) -> pd.DataFrame:
+    """Load telemetry from parquet if available, otherwise generate synthetic data."""
+
+    dataset = _load_from_parquet_sources()
+    if dataset is not None and not dataset.empty:
+        return dataset
+    return generate_vessel_dataframe(rows=rows)
 
 
 @dataclass
@@ -77,10 +246,7 @@ def generate_vessel_dataframe(rows: int = 500, seed: int | None = 42) -> pd.Data
         records.append(record)
 
     df = pd.DataFrame(records)
-    df["Emission_Intensity"] = (df["CO2_tons"] / df["Dwell_Time_hr"].replace(0, np.nan)).round(3)
-    df["Month"] = df["Date"].dt.to_period("M").dt.to_timestamp()
-    df.sort_values("Date", inplace=True)
-    return df
+    return _prepare_dataframe(df)
 
 
 def get_default_filters(df: pd.DataFrame) -> FilterSet:
