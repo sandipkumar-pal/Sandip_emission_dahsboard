@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Sequence
 
 import numpy as np
 import pandas as pd
 from faker import Faker
+
+import pyarrow as pa
+import pyarrow.dataset as ds
 
 import logging
 import os
@@ -23,6 +27,23 @@ DEFAULT_ALERT_THRESHOLD = 15.0
 LOCAL_ENV_VAR = "PORT_EMISSION_DATA_DIR"
 WINDOWS_DOWNLOADS = Path("C:/Users/sandipkumar.pal/Downloads")
 MERGED_FILENAME = "port_emission_merged.parquet"
+PARQUET_CHUNK_SIZE = 5000
+PARQUET_COLUMNS = [
+    "IMO_Number",
+    "Vessel_Name",
+    "Zone",
+    "Fuel_Type",
+    "Vessel_Type",
+    "CO2_tons",
+    "SOx_tons",
+    "NOx_tons",
+    "Speed_knots",
+    "Dwell_Time_hr",
+    "Compliance_Flag",
+    "Date",
+    "Lat",
+    "Lon",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -145,47 +166,126 @@ def _prepare_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     return frame
 
 
-def _load_from_parquet_sources() -> Optional[pd.DataFrame]:
+def _chunk(values: Sequence[int], size: int) -> Iterable[List[int]]:
+    for idx in range(0, len(values), size):
+        yield list(values[idx : idx + size])
+
+
+def _normalise_imo_whitelist(imo_whitelist: Optional[Iterable[int]]) -> List[int]:
+    if not imo_whitelist:
+        return []
+
+    cleaned: List[int] = []
+    for value in imo_whitelist:
+        try:
+            numeric = int(str(value).strip())
+        except (TypeError, ValueError):
+            continue
+        if numeric <= 0:
+            continue
+        cleaned.append(numeric)
+
+    return sorted(set(cleaned))
+
+
+def _scan_dataset_for_imos(dataset: ds.Dataset, imo_values: List[int]) -> pa.Table | None:
+    if not imo_values:
+        logger.debug("No IMO whitelist provided; skipping parquet scan.")
+        return None
+
+    if "IMO_Number" not in dataset.schema.names:
+        logger.warning("Dataset at %s does not include IMO_Number column", dataset)
+        return None
+
+    available_columns = [col for col in PARQUET_COLUMNS if col in dataset.schema.names]
+
+    tables: List[pa.Table] = []
+
+    def _scan_chunk(chunk: List[int]) -> pa.Table | None:
+        expr = ds.field("IMO_Number").isin(pa.array(chunk, type=pa.int64()))
+        table = dataset.to_table(columns=available_columns, filter=expr, use_threads=True)
+        return table if table.num_rows else None
+
+    # Use a thread pool to process each IMO chunk concurrently. PyArrow internally
+    # parallelises IO per chunk, and the outer executor lets us saturate multi-core CPUs
+    # when large IMO lists are supplied.
+    max_workers = min(os.cpu_count() or 8, 8)
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for table in executor.map(_scan_chunk, _chunk(imo_values, PARQUET_CHUNK_SIZE)):
+            if table is not None:
+                tables.append(table)
+
+    if not tables:
+        return None
+
+    return pa.concat_tables(tables, promote=True)
+
+
+def _load_from_parquet_sources(imo_whitelist: Optional[Iterable[int]] = None) -> Optional[pd.DataFrame]:
     sources = _discover_parquet_sources()
     if not sources:
+        return None
+
+    imo_values = _normalise_imo_whitelist(imo_whitelist)
+    if not imo_values:
+        logger.info("Skipping parquet load because no IMO whitelist was provided.")
         return None
 
     try:
         if "merged" in sources and sources["merged"].exists():
             logger.info("Loading merged emission parquet from %s", sources["merged"])
-            df = pd.read_parquet(sources["merged"])
-            return _prepare_dataframe(df)
+            dataset = ds.dataset(str(sources["merged"]), format="parquet")
+            table = _scan_dataset_for_imos(dataset, imo_values)
+            if table is not None:
+                df = table.to_pandas(split_blocks=True, self_destruct=True)
+                return _prepare_dataframe(df)
+            logger.info("Merged parquet contained no rows for requested IMOs; scanning raw files instead.")
 
         bulk_path = sources.get("bulk")
         ropax_path = sources.get("ropax")
         if not bulk_path or not ropax_path:
             return None
 
-        logger.info("Combining emission parquet files from %s", sources["base_dir"])
-        bulk_df = pd.read_parquet(bulk_path)
-        ropax_df = pd.read_parquet(ropax_path)
-        combined = pd.concat([bulk_df, ropax_df], ignore_index=True)
+        logger.info("Scanning raw emission parquet files from %s", sources["base_dir"])
+        datasets = [ds.dataset(str(path), format="parquet") for path in (bulk_path, ropax_path)]
 
-        merged_path = sources["merged"]
-        try:
-            merged_path.parent.mkdir(parents=True, exist_ok=True)
-            combined.to_parquet(merged_path, index=False)
-        except Exception as exc:  # pragma: no cover - filesystem specific
-            logger.warning("Unable to persist merged parquet file: %s", exc)
+        tables: List[pa.Table] = []
+        for dataset in datasets:
+            table = _scan_dataset_for_imos(dataset, imo_values)
+            if table is not None:
+                tables.append(table)
 
-        return _prepare_dataframe(combined)
+        if not tables:
+            return None
+
+        combined = pa.concat_tables(tables, promote=True)
+
+        df = combined.to_pandas(split_blocks=True, self_destruct=True)
+        return _prepare_dataframe(df)
     except Exception as exc:  # pragma: no cover - external dependency errors
         logger.warning("Falling back to simulated data due to parquet load failure: %s", exc)
         return None
 
 
-def load_emission_dataset(rows: int = 500) -> pd.DataFrame:
+def load_emission_dataset(
+    rows: int = 500, imo_whitelist: Optional[Iterable[int]] = None
+) -> pd.DataFrame:
     """Load telemetry from parquet if available, otherwise generate synthetic data."""
 
-    dataset = _load_from_parquet_sources()
+    dataset = _load_from_parquet_sources(imo_whitelist=imo_whitelist)
     if dataset is not None and not dataset.empty:
+        dataset.attrs["source"] = "parquet"
+        dataset.attrs["load_context"] = "parquet"
+        dataset.attrs["imo_filter"] = _normalise_imo_whitelist(imo_whitelist)
         return dataset
-    return generate_vessel_dataframe(rows=rows)
+
+    fallback = generate_vessel_dataframe(rows=rows)
+    fallback.attrs["source"] = "simulated"
+    fallback.attrs["imo_filter"] = _normalise_imo_whitelist(imo_whitelist)
+    fallback.attrs["load_context"] = (
+        "simulated-no-filter" if not imo_whitelist else "simulated-fallback"
+    )
+    return fallback
 
 
 @dataclass
@@ -248,7 +348,10 @@ def generate_vessel_dataframe(rows: int = 500, seed: int | None = 42) -> pd.Data
         records.append(record)
 
     df = pd.DataFrame(records)
-    return _prepare_dataframe(df)
+    prepared = _prepare_dataframe(df)
+    prepared.attrs["source"] = "simulated"
+    prepared.attrs["load_context"] = "simulated"
+    return prepared
 
 
 def get_default_filters(df: pd.DataFrame) -> FilterSet:

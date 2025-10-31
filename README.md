@@ -36,7 +36,14 @@ Place the source parquet files provided by the analytics team inside your downlo
 - `C:\Users\sandipkumar.pal\Downloads\bulkcarrier.parquet`
 - `C:\Users\sandipkumar.pal\Downloads\ropax.parquet`
 
-On the first launch the app will append both datasets, save a cached `port_emission_merged.parquet`, and reuse that merged snapshot on subsequent runs. To store the files elsewhere, set the `PORT_EMISSION_DATA_DIR` environment variable to the directory containing the parquet files before starting Streamlit. If no parquet data is found the dashboard transparently reverts to the built-in simulated telemetry.
+The dashboard now performs **IMO-targeted parquet scans** to keep load times comfortably under 30 seconds even for multi-gigabyte files:
+
+1. Launch the app and open the sidebar section titled **“Data Scope.”**
+2. Upload a CSV/TXT/Excel file that lists the IMO numbers you want to analyse or paste the values manually.
+3. The ingestion layer filters the parquet data to those IMOs using PyArrow’s dataset scanner and parallel chunking, drastically reducing memory use.
+4. If a pre-merged snapshot (`port_emission_merged.parquet`) is present it is used immediately; otherwise the raw files are scanned on-demand.
+
+If no parquet data is available—or no rows match the supplied IMO list—the dashboard transparently reverts to the built-in simulated telemetry. To point the loader at a different directory, set the `PORT_EMISSION_DATA_DIR` environment variable before starting Streamlit.
 
 > **Note:** The repository intentionally excludes image assets—branding can be applied via CSS or by referencing locally hosted logos outside of version control.
 
