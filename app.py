@@ -66,10 +66,19 @@ def init_filter_state(df: pd.DataFrame) -> None:
         st.session_state["filter_fuel_types"] = list(defaults.fuel_types)
 
 
+def _as_utc_timestamp(value) -> pd.Timestamp:
+    """Convert a date/datetime-like object to a UTC timestamp."""
+
+    ts = pd.Timestamp(value)
+    if ts.tzinfo is None:
+        return ts.tz_localize("UTC")
+    return ts.tz_convert("UTC")
+
+
 def build_filter_set() -> FilterSet:
     return FilterSet(
-        start=pd.Timestamp(st.session_state["filter_start"]),
-        end=pd.Timestamp(st.session_state["filter_end"]),
+        start=_as_utc_timestamp(st.session_state["filter_start"]),
+        end=_as_utc_timestamp(st.session_state["filter_end"]),
         zones=st.session_state["filter_zones"],
         vessel_types=st.session_state["filter_vessel_types"],
         fuel_types=st.session_state["filter_fuel_types"],
