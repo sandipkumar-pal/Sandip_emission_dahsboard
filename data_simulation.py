@@ -137,7 +137,9 @@ def _prepare_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     frame["Emission_Intensity"] = (
         frame["CO2_tons"] / frame["Dwell_Time_hr"].replace(0, np.nan)
     ).round(3)
-    frame["Month"] = frame["Date"].dt.to_period("M").dt.to_timestamp()
+    frame["Month"] = (
+        frame["Date"].dt.to_period("M").dt.to_timestamp().dt.tz_localize("UTC")
+    )
     frame.sort_values("Date", inplace=True)
     frame.reset_index(drop=True, inplace=True)
     return frame
