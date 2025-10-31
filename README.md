@@ -1,36 +1,65 @@
 # Port Emission Intelligence – ESG M&T
 
-Streamlit-based mockup dashboard showcasing ECA vs Non-ECA emission analytics for a Port Authority. The app features role-based navigation, KPI intelligence, map visualizations, and compliance insights aligned with an S&P Global dark theme.
+Enterprise-grade Streamlit dashboard delivering ECA vs Non-ECA emission analytics for Port Authority stakeholders. The experience mirrors modern BI platforms with a S&P Global-inspired dark theme, responsive layout, and storytelling insights.
 
-## Features
-- Secure login experience with role-aware navigation (Admin / Analyst / Ops Manager / Regulator).
-- Executive overview with KPI cards, zone analytics, and Sankey insights.
-- Folium spatial view showing simulated vessels, ECA boundary, and tooltip drill-downs.
-- Vessel & voyage analytics table with export, comparative benchmarking, and compliance alerting.
-- Admin panel for managing guardrails, reviewing system metadata, and future ECA boundary ingestion.
+## Highlights
+- **Role-aware UX** for Admin, Analyst, Ops Manager, and Regulator personas with persistent filter context.
+- **Advanced analytics suite** featuring KPI boards, anomaly detection, dual-axis time series, Sankey flows, and correlation mapping.
+- **Spatial intelligence** with Folium heatmaps, ECA boundary overlays, and rich vessel tooltips.
+- **Smart storytelling** including quick insights, anomaly watchlists, compliance gauge, and operational recommendations.
+- **Export-ready tooling** offering CSV, Excel, and PDF brief downloads plus admin utilities for guardrails and boundary management.
 
 ## Tech Stack
-- Streamlit, Plotly, Folium for the UI layer.
-- NumPy, Pandas, Faker for synthetic maritime telemetry.
-- Standard `requirements.txt` for dependency management.
+- **Frontend:** Streamlit with custom CSS, Plotly visualizations, Folium maps, Streamlit Extras.
+- **Data Simulation:** Pandas, NumPy, Faker generating 30-day maritime telemetry (~500 voyages).
+- **Environment:** Poetry for reproducible dependency management.
 
 ## Getting Started
-1. Create and activate a virtual environment (optional but recommended).
-2. Install dependencies with pip:
+1. Ensure Poetry is installed (`pipx install poetry` or refer to Poetry docs).
+2. Install dependencies and activate the virtual environment:
    ```bash
-   pip install -r requirements.txt
+   poetry install
+   poetry shell  # optional – or prefix commands with `poetry run`
    ```
 3. Launch the dashboard:
    ```bash
-   streamlit run app.py
+   poetry run streamlit run app.py
    ```
-4. Use any credentials to log in and select a role to explore the tailored insights.
+4. Authenticate with any username/password combination, choose a role, and explore the analytics tabs.
 
-> **Note:** All datasets are simulated for demonstration purposes only.
+> If you adjust dependencies, regenerate the lockfile with `poetry lock` from a network-enabled environment.
 
-### Branding the Dashboard
+> **Note:** All telemetry is simulated for demonstration purposes. The repository intentionally excludes image assets—branding can be applied via CSS or by referencing locally hosted logos outside of version control.
 
-Add your own organization logo (PNG recommended) at `assets/port_logo.png` if you would like
-it rendered on the login screen and sidebar. When the file is absent, the app gracefully
-falls back to a typography-based header so the repository remains binary-free for easier
-version control and PR automation.
+## Project Structure
+```
+.
+├── app.py
+├── assets/
+│   ├── custom.css
+│   └── eca_boundary.geojson
+├── components/
+│   ├── admin.py
+│   ├── comparative_insights.py
+│   ├── compliance_alerts.py
+│   ├── dashboard_overview.py
+│   ├── login.py
+│   ├── map_view.py
+│   ├── reports.py
+│   ├── vessel_analytics.py
+│   └── zone_analytics.py
+├── data_simulation.py
+├── poetry.lock
+└── pyproject.toml
+```
+
+## Development Scripts
+- `poetry run black .` – format code (optional dev dependency).
+- `poetry run flake8` – lint the project.
+- `poetry run python -m compileall app.py components data_simulation.py` – quick syntax check used in CI.
+
+## Roadmap Ideas
+- Integrate live AIS or bunker data feeds.
+- Connect to enterprise authentication providers (e.g., Azure AD).
+- Replace PDF placeholder with branded report templates.
+- Extend Folium view with 3D bathymetry layers or AIS playback.

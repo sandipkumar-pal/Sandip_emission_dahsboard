@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Optional, Tuple
 
 import streamlit as st
@@ -7,13 +6,7 @@ import streamlit as st
 ROLES = ["Admin", "Analyst", "Ops Manager", "Regulator"]
 
 
-def load_logo(path: Optional[Path]) -> bytes | None:
-    if path is None or not path.exists():
-        return None
-    return path.read_bytes()
-
-
-def render_login(logo_path: Optional[str] = None) -> Tuple[bool, Optional[str]]:
+def render_login() -> Tuple[bool, Optional[str]]:
     authenticated = st.session_state.get("authenticated", False)
     active_role = st.session_state.get("role") if authenticated else None
 
@@ -36,14 +29,10 @@ def render_login(logo_path: Optional[str] = None) -> Tuple[bool, Optional[str]]:
         </div>
     """, unsafe_allow_html=True)
 
-    logo_bytes = load_logo(Path(logo_path) if logo_path else None)
-    if logo_bytes:
-        st.image(logo_bytes, width=120)
-    else:
-        st.markdown(
-            "<p style='color:#E03C31;font-weight:600;'>Port Authority Dashboard</p>",
-            unsafe_allow_html=True,
-        )
+    st.markdown(
+        "<p style='color:#E03C31;font-weight:600;'>Port Authority Dashboard</p>",
+        unsafe_allow_html=True,
+    )
 
     st.write("### Authenticate")
     username = st.text_input("User ID", placeholder="firstname.lastname")

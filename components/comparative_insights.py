@@ -1,72 +1,94 @@
-from typing import Tuple
-
-import numpy as np
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
 
-from data_simulation import PORT_COORDINATES, comparative_view, regression_dataset
+from data_simulation import comparative_port_profile, correlation_matrix, monthly_trend, speed_co2_relationship
 
-
-PORT_OPTIONS = list(PORT_COORDINATES.keys())
-
-
-def _regression_trace(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
-    coeffs = np.polyfit(df["Speed_knots"], df["CO2_tons"], 1)
-    x_vals = np.linspace(df["Speed_knots"].min(), df["Speed_knots"].max(), 50)
-    y_vals = coeffs[0] * x_vals + coeffs[1]
-    return x_vals, y_vals
+COLOR_MAP = {"ECA": "#E03C31", "Non-ECA": "#2980B9"}
 
 
 def render_comparative_insights(df: pd.DataFrame) -> None:
     st.markdown('<div class="section-header">Comparative Insights</div>', unsafe_allow_html=True)
 
-    tabs = st.tabs(["Port Benchmark", "Speed vs CO₂ Regression"])
+    comparison = comparative_port_profile(df)
+    trend_df = monthly_trend(df)
+    relation = speed_co2_relationship(df)
+    corr = correlation_matrix(df)
 
-    with tabs[0]:
-        col1, col2 = st.columns(2)
-        port_a = col1.selectbox("Primary Port", PORT_OPTIONS, index=0)
-        port_b = col2.selectbox("Benchmark Port", PORT_OPTIONS, index=1)
-
-        comparison = comparative_view(df)
-        pivot = comparison.pivot(index="Date", columns="Zone", values="CO2_tons").fillna(0)
-        pivot["Port"] = port_a
-        benchmark = pivot.copy()
-        benchmark["Port"] = port_b
-        combined = pd.concat([pivot, benchmark])
-
-        bar_fig = px.bar(
-            combined.reset_index(),
-            x="Date",
-            y=["ECA", "Non-ECA"],
-            color_discrete_map={"ECA": "#E03C31", "Non-ECA": "#2980B9"},
-            barmode="group",
-            facet_row="Port",
-            height=500,
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        area = px.bar(
+            comparison,
+            x="Port",
+            y="CO2_tons",
+            color="Zone",
+            color_discrete_map=COLOR_MAP,
+            title="Peer Port Emission Benchmark",
         )
-        bar_fig.update_layout(template="plotly_dark", plot_bgcolor="#121212", paper_bgcolor="#121212")
-        st.plotly_chart(bar_fig, use_container_width=True)
+        area.update_layout(template="plotly_dark", plot_bgcolor="#121212", paper_bgcolor="#121212")
+        st.plotly_chart(area, use_container_width=True)
+    with col2:
+        st.markdown(
+            """
+            <div class="metric-card">
+                <h4>Key Takeaways</h4>
+                <p class="metric-subtext">
+                    Singapore maintains <span class="highlight-green">operational advantage</span> on Non-ECA corridors.
+                    Jurong exhibits higher ECA exposure requiring targeted compliance sweeps.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-    with tabs[1]:
-        regression_df, corr = regression_dataset(df)
-        scatter_fig = px.scatter(
-            regression_df,
+    try:
+        bubble = px.scatter(
+            relation,
             x="Speed_knots",
             y="CO2_tons",
-            color_discrete_sequence=["#2980B9"],
-            labels={"Speed_knots": "Speed (knots)", "CO2_tons": "CO₂ (t)"},
+            size="Dwell_Time_hr",
+            color="Zone",
+            hover_data=["Vessel_Type", "Fuel_Type"],
+            color_discrete_map=COLOR_MAP,
+            trendline="ols",
+            title="Speed vs CO₂ (Bubble size = Dwell Time)",
         )
-        x_vals, y_vals = _regression_trace(regression_df)
-        scatter_fig.add_traces(
-            px.line(x=x_vals, y=y_vals, labels={"x": "Speed", "y": "CO₂"}).update_traces(
-                line=dict(color="#E03C31", width=3), showlegend=False
-            ).data
+    except Exception:
+        bubble = px.scatter(
+            relation,
+            x="Speed_knots",
+            y="CO2_tons",
+            size="Dwell_Time_hr",
+            color="Zone",
+            hover_data=["Vessel_Type", "Fuel_Type"],
+            color_discrete_map=COLOR_MAP,
+            title="Speed vs CO₂ (Bubble size = Dwell Time)",
         )
-        scatter_fig.update_layout(
-            template="plotly_dark",
-            plot_bgcolor="#121212",
-            paper_bgcolor="#121212",
-            title=f"Speed vs CO₂ Regression (r = {corr})",
+    bubble.update_layout(template="plotly_dark", plot_bgcolor="#121212", paper_bgcolor="#121212")
+    st.plotly_chart(bubble, use_container_width=True)
+
+    corr_fig = go.Figure(
+        data=go.Heatmap(
+            z=corr.values,
+            x=corr.columns,
+            y=corr.index,
+            colorscale="Reds",
+            zmin=-1,
+            zmax=1,
+            colorbar=dict(title="r"),
         )
-        st.plotly_chart(scatter_fig, use_container_width=True)
-        st.caption("Correlation computed using Pearson method on simulated dataset.")
+    )
+    corr_fig.update_layout(template="plotly_dark", plot_bgcolor="#121212", paper_bgcolor="#121212", title="Correlation Matrix")
+    st.plotly_chart(corr_fig, use_container_width=True)
+
+    monthly_area = px.area(
+        trend_df,
+        x="Month",
+        y="CO2_tons",
+        color="Zone",
+        color_discrete_map=COLOR_MAP,
+        title="Monthly Emission Trend",
+    )
+    monthly_area.update_layout(template="plotly_dark", plot_bgcolor="#121212", paper_bgcolor="#121212")
+    st.plotly_chart(monthly_area, use_container_width=True)
