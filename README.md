@@ -10,7 +10,7 @@ Enterprise-grade Streamlit dashboard delivering ECA vs Non-ECA emission analytic
 - **Export-ready tooling** offering CSV, Excel, and PDF brief downloads plus admin utilities for guardrails and boundary management.
 
 ## Tech Stack
-- **Frontend:** Streamlit with custom CSS, Plotly visualizations, Folium maps, Streamlit Extras.
+- **Frontend:** Streamlit with custom CSS, Plotly visualizations, and Folium maps.
 - **Data Simulation:** Pandas, NumPy, Faker generating 30-day maritime telemetry (~500 voyages).
 - **Environment:** Poetry for reproducible dependency management.
 

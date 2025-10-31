@@ -4,7 +4,6 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import streamlit as st
-from streamlit_extras.metric_cards import style_metric_cards
 
 from data_simulation import (
     fuel_mix,
@@ -12,6 +11,39 @@ from data_simulation import (
     highlight_anomalies,
     zone_snapshot,
 )
+
+
+def style_metric_cards(
+    background_color: str = "#1A1A1A",
+    border_left_color: str = "#E03C31",
+    border_color: str = "#2A2A2A",
+    box_shadow: str = "0 10px 30px rgba(0,0,0,0.3)",
+) -> None:
+    """Lightweight styling shim mirroring streamlit-extras metric cards."""
+
+    st.markdown(
+        f"""
+        <style>
+        div[data-testid="stMetric"] {{
+            background: {background_color};
+            border-left: 4px solid {border_left_color};
+            border: 1px solid {border_color};
+            border-radius: 12px;
+            padding: 0.75rem 0.85rem;
+            box-shadow: {box_shadow};
+        }}
+        div[data-testid="stMetricLabel"] {{
+            color: #E0E0E0;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }}
+        div[data-testid="stMetricValue"] {{
+            color: {border_left_color};
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_overview(kpis: Dict[str, float], df: pd.DataFrame, insight: str) -> None:

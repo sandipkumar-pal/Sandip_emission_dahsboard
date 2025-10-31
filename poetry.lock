@@ -576,17 +576,6 @@ validators = "<1.0,>=0.18"
 watchdog = ">=2.1.5"
 
 [[package]]
-name = "streamlit-extras"
-version = "0.4.4"
-description = "Curated list of Streamlit extras"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-
-[package.dependencies]
-streamlit = ">=1.20"
-
-[[package]]
 name = "tenacity"
 version = "8.5.0"
 description = "Retry code until it succeeds"
@@ -690,4 +679,4 @@ six = ">=1.10"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "1a1e13809790bc2f7cc7463b5099e4046afbd1b4504cdebff94492fd7dc593b8"
+content-hash = "074c655b007d51b8b9e82157002994eba9c16277f6b0129c49207a1d244b5d49"
