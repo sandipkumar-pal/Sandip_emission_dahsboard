@@ -10,8 +10,8 @@ Enterprise-grade Streamlit dashboard delivering ECA vs Non-ECA emission analytic
 - **Export-ready tooling** offering CSV, Excel, and PDF brief downloads plus admin utilities for guardrails and boundary management.
 
 ## Tech Stack
-- **Frontend:** Streamlit with custom CSS, Plotly visualizations, and Folium maps.
-- **Data Sources:** Automatically merges local `bulkcarrier.parquet` and `ropax.parquet` files when available, otherwise falls back to a synthetic feed generated with Pandas, NumPy, and Faker.
+- **Frontend:** Streamlit with custom CSS, Plotly visualizations, Folium maps, Streamlit Extras.
+- **Data Simulation:** Pandas, NumPy, Faker generating 30-day maritime telemetry (~500 voyages).
 - **Environment:** Poetry for reproducible dependency management.
 
 ## Getting Started
@@ -29,23 +29,7 @@ Enterprise-grade Streamlit dashboard delivering ECA vs Non-ECA emission analytic
 
 > If you adjust dependencies, regenerate the lockfile with `poetry lock` from a network-enabled environment.
 
-### Local emission data ingestion
-
-Place the source parquet files provided by the analytics team inside your downloads directory:
-
-- `C:\Users\sandipkumar.pal\Downloads\bulkcarrier.parquet`
-- `C:\Users\sandipkumar.pal\Downloads\ropax.parquet`
-
-The dashboard now performs **IMO-targeted parquet scans** to keep load times comfortably under 30 seconds even for multi-gigabyte files:
-
-1. Launch the app and open the sidebar section titled **“Data Scope.”**
-2. Upload a CSV/TXT/Excel file that lists the IMO numbers you want to analyse or paste the values manually.
-3. The ingestion layer filters the parquet data to those IMOs using PyArrow’s dataset scanner and parallel chunking, drastically reducing memory use.
-4. If a pre-merged snapshot (`port_emission_merged.parquet`) is present it is used immediately; otherwise the raw files are scanned on-demand.
-
-If no parquet data is available—or no rows match the supplied IMO list—the dashboard transparently reverts to the built-in simulated telemetry. To point the loader at a different directory, set the `PORT_EMISSION_DATA_DIR` environment variable before starting Streamlit.
-
-> **Note:** The repository intentionally excludes image assets—branding can be applied via CSS or by referencing locally hosted logos outside of version control.
+> **Note:** All telemetry is simulated for demonstration purposes. The repository intentionally excludes image assets—branding can be applied via CSS or by referencing locally hosted logos outside of version control.
 
 ## Project Structure
 ```
